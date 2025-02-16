@@ -15,11 +15,11 @@
     <h1>Team Randomizer</h1>
     <textarea id="names" placeholder="Enter 10 names, one per line..."></textarea>
     <br>
-    <input type="text" id="duo1" placeholder="Duo Member 1">
-    <input type="text" id="duo2" placeholder="Duo Member 2">
+    <input type="text" id="duo1" placeholder="Duo Member 1 (Optional)">
+    <input type="text" id="duo2" placeholder="Duo Member 2 (Optional)">
     <br>
-    <input type="text" id="rival1" placeholder="Rival Member 1">
-    <input type="text" id="rival2" placeholder="Rival Member 2">
+    <input type="text" id="rival1" placeholder="Rival Member 1 (Optional)">
+    <input type="text" id="rival2" placeholder="Rival Member 2 (Optional)">
     <br>
     <button onclick="randomizeTeams()">Randomize Teams</button>
     
@@ -30,7 +30,7 @@
     
     <script>
         function randomizeTeams() {
-            let names = document.getElementById("names").value.trim().split("\n");
+            let names = document.getElementById("names").value.trim().split("\n").filter(name => name.trim() !== "");
             let duo1 = document.getElementById("duo1").value.trim();
             let duo2 = document.getElementById("duo2").value.trim();
             let rival1 = document.getElementById("rival1").value.trim();
@@ -41,29 +41,28 @@
                 return;
             }
             
-            if (!names.includes(duo1) || !names.includes(duo2) || !names.includes(rival1) || !names.includes(rival2)) {
-                alert("Duo and rival names must be in the list.");
-                return;
-            }
-            
-            if (duo1 === duo2 || rival1 === rival2) {
-                alert("Duo or rival players must be different.");
-                return;
-            }
-            
-            names = names.filter(name => ![duo1, duo2, rival1, rival2].includes(name));
-            names.sort(() => Math.random() - 0.5);
-            
-            let team1 = [duo1, duo2];
+            let team1 = [];
             let team2 = [];
             
-            if (Math.random() > 0.5) {
-                team1.push(rival1);
-                team2.push(rival2);
-            } else {
-                team1.push(rival2);
-                team2.push(rival1);
+            // Handle duo if provided
+            if (duo1 && duo2 && names.includes(duo1) && names.includes(duo2) && duo1 !== duo2) {
+                team1.push(duo1, duo2);
+                names = names.filter(name => name !== duo1 && name !== duo2);
             }
+            
+            // Handle rivals if provided
+            if (rival1 && rival2 && names.includes(rival1) && names.includes(rival2) && rival1 !== rival2) {
+                if (Math.random() > 0.5) {
+                    team1.push(rival1);
+                    team2.push(rival2);
+                } else {
+                    team1.push(rival2);
+                    team2.push(rival1);
+                }
+                names = names.filter(name => name !== rival1 && name !== rival2);
+            }
+            
+            names.sort(() => Math.random() - 0.5);
             
             for (let name of names) {
                 (team1.length < 5 ? team1 : team2).push(name);
